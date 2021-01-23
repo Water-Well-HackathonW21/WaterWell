@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Add Map</title>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+}
+    </style>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNM6MofA757awGhMwAObCf156Tcp0gaws&callback=initMap&libraries=&v=weekly"
+      defer
+    ></script>
+
+  </head>
+  <body>
+    <h3>WaterWells</h3>
+    <div id="map"></div>
+
+    <script>
+        function initMap() {
+            const location = { lat: 53.5461, lng: -113.4938 };
+
+            var options = {
+                zoom: 4,
+                center: location,
+            }
+
+            map = new google.maps.Map(document.getElementById("map"), options);
+
+            // const marker = new google.maps.Marker({
+            //     position: location,
+            //     map: map,
+            // });
+            //addMarker({ coords: {lat: 53.5461, lng: -113.4938 }});
+            google.maps.event.addListener(map, 'click', 
+                function(event){
+                    addMarker({coords:event.latLng});
+                });
+        }
+        function addMarker(props){
+            const marker = new google.maps.Marker({
+                position: props.coords,
+                map: map,
+            });
+
+        }
+    </script>
+  </body>
+</html>
