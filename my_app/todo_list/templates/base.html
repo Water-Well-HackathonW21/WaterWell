@@ -45,9 +45,6 @@
                   lat: position.coords.latitude,
                   lng: position.coords.longitude,
                 };
-                infoWindow.setPosition(pos);
-                infoWindow.setContent("Location found.");
-                infoWindow.open(map);
                 map.setCenter(pos);
               },
               () => {
@@ -62,6 +59,12 @@
 
         // part of https://developers.google.com/maps/documentation/javascript/events#EventArguments
         map.addListener("click", (e) => {
+          
+          // https://stackoverflow.com/questions/24478348/text-input-to-a-global-infowindow
+          infoWindow = new google.maps.InfoWindow();
+          infoWindow.setPosition(e.latLng);
+          infoWindow.setContent("Name: <input type='text' id='text4mrkr' value=' Name' /> <br/> Status: <input type='text' id='text4mrkr' value='Status' /><input type='button' value='submit' onclick='addPlace();' />");
+          infoWindow.open(map);
           placeMarkerAndPanTo(e.latLng, map);
         });
 
