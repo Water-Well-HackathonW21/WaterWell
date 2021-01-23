@@ -19,6 +19,9 @@
     <h3>WaterWells</h3>
     <div id="map"></div>
 
+
+
+
     <script>
         function initMap() {
             const location = { lat: 53.5461, lng: -113.4938 };
@@ -30,23 +33,46 @@
 
             map = new google.maps.Map(document.getElementById("map"), options);
 
-            // const marker = new google.maps.Marker({
-            //     position: location,
-            //     map: map,
-            // });
-            //addMarker({ coords: {lat: 53.5461, lng: -113.4938 }});
             google.maps.event.addListener(map, 'click', 
                 function(event){
-                    addMarker({coords:event.latLng});
+                    //addMarker({coords:event.latLng});
+                    var description = prompt("Please enter some description");
+
+                    if (description!=null){
+                        addMarker({coords:event.latLng, content:description});
+                    }
+                    else{
+                        addMarker({coords:event.latLng});
+                    }
                 });
         }
         function addMarker(props){
-            const marker = new google.maps.Marker({
+            var marker = new google.maps.Marker({
                 position: props.coords,
                 map: map,
             });
+            if (props.content){
+                var infoWindow = new google.maps.InfoWindow({
+                    content: props.content
+                });
+
+                marker.addListener('click', function(){
+                    infoWindow.open(map,marker);
+                });
+                
+            }
 
         }
     </script>
   </body>
+
+
+    <!-- Including  jQuery Dialog UI Here-->
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/dialog.js"></script>
+
+
+
 </html>
