@@ -24,14 +24,20 @@
     </style>
     <script>
       // https://developers.google.com/maps/documentation/javascript/geolocation#maps_map_geolocation-javascript
-      let map, infoWindow;
+      var map;
+      var infoWindow;
+      var position;
+      // https://stackoverflow.com/questions/10793604/html-center-input-buttons/24390614
+      var inputContent = "Name:<br/> <input type='text' id='nameInput' value='Name' /> <br/>" + 
+                          "Status (Active/Dry/Polluted):<br/> <input type='text' id='statusInput' value='Status' /> <br/>" +
+                          "Description:<br/> <input type='text' id='descriptionInput' value='Description' /> <br/>" + 
+                          "<br/><input type='button' value='submit' style='margin:0px auto; display:block;' onclick='placeMarker();' />";
 
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: -34.397, lng: 150.644 },
           zoom: 6,
         });
-        infoWindow = new google.maps.InfoWindow();
         const locationButton = document.createElement("button");
         locationButton.textContent = "Go to Current Location";
         locationButton.classList.add("custom-map-control-button");
@@ -46,48 +52,28 @@
                   lng: position.coords.longitude,
                 };
                 map.setCenter(pos);
-              },
-              () => {
-                handleLocationError(true, infoWindow, map.getCenter());
               }
             );
-          } else {
-            // Browser doesn't support Geolocation
-            handleLocationError(false, infoWindow, map.getCenter());
           }
         });
 
         // part of https://developers.google.com/maps/documentation/javascript/events#EventArguments
         map.addListener("click", (e) => {
-          // https://stackoverflow.com/questions/10793604/html-center-input-buttons/24390614
-          var inputContent = "Name:<br/> <input type='text' id='nameInput' value='Name' /> <br/>" + 
-          "Status (Active/Dry/Polluted):<br/> <input type='text' id='statusInput' value='Status' /> <br/>" +
-          "Description:<br/> <input type='text' id='descriptionInput' value='Description' /> <br/>" + 
-          "<br/><input type='button' value='submit' style='margin:0px auto; display:block;' onclick='infoWindow.close();' />";
           // https://stackoverflow.com/questions/24478348/text-input-to-a-global-infowindow
           infoWindow = new google.maps.InfoWindow();
-          infoWindow.setPosition(e.latLng);
+          position = e.latLng;
+          infoWindow.setPosition(position);
           infoWindow.setContent(inputContent);
           infoWindow.open(map);
-          placeMarkerAndPanTo(e.latLng, map);
+          //placeMarkerAndPanTo(e.latLng, map);
         });
 
       }
 
-      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(
-          browserHasGeolocation
-            ? "Error: The Geolocation service failed."
-            : "Error: Your browser doesn't support geolocation."
-        );
-        infoWindow.open(map);
-      }
-
       // https://developers.google.com/maps/documentation/javascript/events#EventArguments
-      function placeMarkerAndPanTo(latLng, map) {
+      function placeMarkerAndPanTo() {
         new google.maps.Marker({
-          position: latLng,
+          position: position,
           map: map,
         });
         map.panTo(latLng);
@@ -100,11 +86,35 @@
         placeMarker(e.latLng, map);
       });
 
-      function placeMarker(position, map) {
+      function placeMarker() {
+        
         var marker = new google.maps.Marker({
           position: position,
           map: map
         });  
+        var attributeArray = [document.getElementById("nameInput").value,
+                              document.getElementById("statusInput").value, 
+                              document.getElementById("descriptionInput").value,
+                              position]
+        marker.htmlContent = attributeArray;
+        infoWindow.close();
+
+        // https://stackoverflow.com/questions/30905390/creating-a-text-input-field-precisely-where-a-user-clicks-on-a-google-map
+        google.maps.event.addListener(marker, 'click', function() {
+          infoWindow.setPosition(this.htmlContent[3]);
+          var inputContent = "Name:<br/> <input type='text' id='nameInput' value='" + this.htmlContent[0] + "' /> <br/>" + 
+                          "Status (Active/Dry/Polluted):<br/> <input type='text' id='statusInput' value='" + this.htmlContent[1] + "' /> <br/>" +
+                          "Description:<br/> <input type='text' id='descriptionInput' value='" + this.htmlContent[2] + "' /> <br/>" + 
+                          "<br/><input type='button' value='submit' style='margin:0px auto; display:block;' onclick='placeMarker();' />";
+          infoWindow.setContent(inputContent);
+          infoWindow.open(map);
+        });
+
+        // delete marker on right click
+        google.maps.event.addListener(marker, 'rightclick', function() {
+          this.setMap(null);
+        });
+
         map.panTo(position);
       }
 
