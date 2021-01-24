@@ -116,11 +116,12 @@
 
                 });
             var obj = '{{ all_items|safe }}';
-            console.log(obj);
-            // for (item in obj){
-            //     var point = new google.maps.LatLng(item["lat"], item["lon"]);
-            //     addMarker(coords: point, content: item["description"], iconImage: item["status"])
-            // }
+            obj = JSON.parse(obj);
+            for (i = 0; i < obj.length; i++){
+                console.log(obj[i]["fields"]["status"])
+                var point = new google.maps.LatLng(obj[i]["fields"]["lat"], obj[i]["fields"]["lon"]);
+                addMarker({coords: point, content: obj[i]["fields"]["description"], iconImage: obj[i]["fields"]["status"]});
+            }
         }
         
         

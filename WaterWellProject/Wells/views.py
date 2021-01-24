@@ -12,5 +12,5 @@ def index (request):
     # else:
     # all_items = Well.objects.all()
     json_serializer = serializers.get_serializer("json")()
-    all_items = json_serializer.serialize(Well.objects.all().order_by('id'))
+    all_items = json_serializer.serialize(Well.objects.all())
     return render (request, 'Wells/main.html', {'all_items': all_items})
