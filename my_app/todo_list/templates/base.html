@@ -1,0 +1,193 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <title>{% block title %} Hello world{% endblock %}</title>
+        <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNM6MofA757awGhMwAObCf156Tcp0gaws&callback=initMap&libraries=&v=weekly"
+      defer
+    ></script>
+    <style type="text/css">
+      /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;
+        /* The height is 400 pixels */
+        width: 100%;
+        /* The width is the width of the web page */
+      }
+    </style>
+    <script>
+      // https://developers.google.com/maps/documentation/javascript/geolocation#maps_map_geolocation-javascript
+      var map;
+      var infoWindow;
+      var position;
+      // https://stackoverflow.com/questions/10793604/html-center-input-buttons/24390614
+      var inputContent = "Name:<br/> <input type='text' id='nameInput' value='Name' /> <br/>" + 
+                          "Status (Active/Dry/Polluted):<br/> <input type='text' id='statusInput' value='Status' /> <br/>" +
+                          "Description:<br/> <input type='text' id='descriptionInput' value='Description' /> <br/>" + 
+                          "<br/><input type='button' value='submit' style='margin:0px auto; display:block;' onclick='placeMarker();' />";
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: -34.397, lng: 150.644 },
+          zoom: 6,
+        });
+        const locationButton = document.createElement("button");
+        locationButton.textContent = "Go to Current Location";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+        locationButton.addEventListener("click", () => {
+          // Try HTML5 geolocation.
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const pos = {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                };
+                map.setCenter(pos);
+              }
+            );
+          }
+        });
+
+        // part of https://developers.google.com/maps/documentation/javascript/events#EventArguments
+        map.addListener("click", (e) => {
+          // https://stackoverflow.com/questions/24478348/text-input-to-a-global-infowindow
+          if (infoWindow != null) {
+            infoWindow.close();
+          }
+          infoWindow = new google.maps.InfoWindow();
+          position = e.latLng;
+          infoWindow.setPosition(position);
+          infoWindow.setContent(inputContent);
+          infoWindow.open(map);
+        });
+
+      }
+
+
+      // https://stackoverflow.com/questions/15792655/add-marker-to-google-map-on-click
+      // This event listener calls addMarker() when the map is clicked.
+      google.maps.event.addListener(map, 'click', function(e) {
+        placeMarker(e.latLng, map);
+      });
+
+      function placeMarker() {
+        // https://stackoverflow.com/questions/15096461/resize-google-maps-marker-icon-image
+        var active = {
+            url: "{% static 'Wells/images/icon_active.png' %}", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
+
+        var dry = {
+            url: "{% static 'Wells/images/icon_dry.png' %}", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
+
+        var polluted = {
+            url: "{% static 'Wells/images/icon_polluted.png' %}", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
+
+        var attributeArray = [document.getElementById("nameInput").value,
+                              document.getElementById("statusInput").value, 
+                              document.getElementById("descriptionInput").value,
+                              position]
+
+        var marker = new google.maps.Marker({
+          position: position,
+          map: map
+        });  
+        
+        marker.htmlContent = attributeArray;
+        infoWindow.close();
+
+        if (attributeArray[1].toLowerCase() == "active") {
+          marker.setIcon(active);
+        } else if (attributeArray[1].toLowerCase() == "dry") {
+          marker.setIcon(dry);
+        } else if (attributeArray[1].toLowerCase() == "polluted") {
+          marker.setIcon(polluted);
+        }
+
+        // https://stackoverflow.com/questions/30905390/creating-a-text-input-field-precisely-where-a-user-clicks-on-a-google-map
+        google.maps.event.addListener(marker, 'click', function() {
+          infoWindow.setPosition(this.htmlContent[3]);
+          var inputContent = "Name:<br/> <input type='text' id='nameInput' value='" + this.htmlContent[0] + "' /> <br/>" + 
+                          "Status (Active/Dry/Polluted):<br/> <input type='text' id='statusInput' value='" + this.htmlContent[1] + "' /> <br/>" +
+                          "Description:<br/> <input type='text' id='descriptionInput' value='" + this.htmlContent[2] + "' /> <br/>" + 
+                          "<br/><input type='button' value='submit' style='margin:0px auto; display:block;' onclick='placeMarker();' />";
+          infoWindow.setContent(inputContent);
+          infoWindow.open(map);
+        });
+
+        // delete marker on right click
+        google.maps.event.addListener(marker, 'rightclick', function() {
+          this.setMap(null);
+        });
+
+        map.panTo(position);
+      }
+
+
+    </script>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'home' %}">To-Do List</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'about' %}">About</a>
+              </li>
+            </ul>
+            <form class="d-flex">
+              <input class="form-control me-2" type="search" placeholder="Add" aria-label="Search">
+              <button class="btn btn-outline-secondary" type="submit">Add To List</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+      <h3>My Google Maps Demo</h3>
+      <!--The div element for the map -->
+      <div id="map"></div>
+    <br/>
+     <div class="container">
+        {% block content %}
+        {% endblock %}
+     </div> 
+
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
+
+
