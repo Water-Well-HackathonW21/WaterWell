@@ -1,5 +1,10 @@
 from django.db import models
 
+class Well(models.Model):
+    status = models.CharField(max_length=20)
+    lat = models.FloatField()
+    lon = models.FloatField()
+    description = models.CharField(max_length=100)
 # Create your models here.
 
 # class Subscribe(models.Model):

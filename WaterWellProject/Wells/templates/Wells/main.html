@@ -5,9 +5,21 @@
     <title>Wells Map</title>
     <style>
         #map {
-            height: 600px;
+            height: 1150px;
             width: 100%;
-}
+        }
+        .button {
+            background-color: blue; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
     </style>
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNM6MofA757awGhMwAObCf156Tcp0gaws&callback=initMap&libraries=&v=weekly"
@@ -22,22 +34,42 @@
     <script>
         
         function initMap() {
-            const location = { lat: 53.5461, lng: -113.4938 };
-
-            var options = {
-                zoom: 4,
-                center: location,
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    map.setCenter(pos);
+                },
+                () => {
+                    handleLocationError(true, infoWindow, map.getCenter());
+                }
+                );
+            } else {
+                // Browser doesn't support Geolocation
+                const pos = {
+                    lat: 53.5,
+                    lng: -113.5,
+                };
+                map.setCenter(pos);
             }
 
-            map = new google.maps.Map(document.getElementById("map"), options);
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+            });
+
 
             google.maps.event.addListener(map, 'click', 
                 function(event){
                     //addMarker({coords:event.latLng});
-
+                    var temp;
                     Swal.mixin({
                         input: 'text',
                         confirmButtonText: 'Next &rarr;',
+                        confirmButtonText: 'Active &rarr;',
                         showCancelButton: true,
                         progressSteps: ['1', '2']
                         }).queue([
@@ -52,12 +84,27 @@
                             // Swal.fire({
                             // confirmButtonText: 'Add!'
                             // })
+                            var today = new Date();
+                            var dd = String(today.getDate()).padStart(2, '0');
+                            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                            var yyyy = today.getFullYear();
+
+                            today = dd+ '/' + mm + '/' + yyyy;
+
                             var value = result.value[0];
-                            var description = result.value[1];                            
+                            
+                            var description = result.value[1];
+                            description = description + "\n" + today + "\n";      
+                            temp = value;                      
                         }
                         
                         // if (description!=null){
-                        addMarker({coords:event.latLng, content:description, iconImage: value});
+                        temp = temp.toLowerCase();
+                        if ((temp == "active") || (temp == "dry") || (temp == "polluted") ){
+                            console.log(temp);
+                            addMarker({coords:event.latLng, content:description, iconImage: value.toLowerCase()});
+                        }
+                        
                         //  }
                         // else{
                         // addMarker({coords:event.latLng});
@@ -68,7 +115,18 @@
                     //var description = prompt("Please enter some description");
 
                 });
+            var obj = '{{ all_items|safe }}';
+            console.log(obj);
+            // for (item in obj){
+            //     var point = new google.maps.LatLng(item["lat"], item["lon"]);
+            //     addMarker(coords: point, content: item["description"], iconImage: item["status"])
+            // }
         }
+        
+        
+        
+      
+        var currentMarker;
         function addMarker(props){
             
             var active = "{% static 'Wells/images/icon_active.png' %}"
@@ -79,6 +137,7 @@
                 position: props.coords,
                 map: map,
             });
+            
             if (props.content){
                 var infoWindow = new google.maps.InfoWindow({
                     content: props.content
@@ -86,24 +145,45 @@
 
                 marker.addListener('click', function(){
                     infoWindow.open(map,marker);
+                    var x = document.getElementById("edit");
+                    x.style.visibility = "visible"
+                    currentMarker = marker;
+                });
+
+                infoWindow.addListener('closeclick', function(){
+                    var x = document.getElementById("edit");
+                    x.style.visibility = "hidden"
+                    currentMarker = 0;
                 });
                 
             }
 
             if (props.iconImage){
-                if (props.iconImage == "Active"){
+                if (props.iconImage == "active"){
                     marker.setIcon(active);
                 }
-                else if (props.iconImage == "Dry"){
+                else if (props.iconImage == "dry"){
                     marker.setIcon(dry);
                 }
-                else if (props.iconImage == "Polluted"){
+                else if (props.iconImage == "polluted"){
                     marker.setIcon(polluted);
                 }  
             }
 
         }
+
+        function editMarker(){
+            currentMarker.setMap(null);
+            var x = document.getElementById("edit");
+            x.style.visibility = "hidden"
+
+        }
     </script>
+
+
+
+    <button id="edit" class="button" style="visibility: hidden;" onclick="editMarker()">Edit</button>
+
   </body>
 
     <!-- Including  jQuery Dialog UI Here-->
