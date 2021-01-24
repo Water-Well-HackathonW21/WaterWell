@@ -2,7 +2,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Wells Map</title>
+    <div id="titleDiv">
+        <h1>Wells Map</h1>
+    </div>
+    
     <style>
         #map {
             height: 1150px;
@@ -20,6 +23,14 @@
             margin: 4px 2px;
             cursor: pointer;
         }
+        #titleDiv {
+            text-align: center;
+            border: 5px outset #002633;
+            background-color: #006080;
+        }
+        body {
+          background-color: #336699;
+        }
     </style>
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNM6MofA757awGhMwAObCf156Tcp0gaws&callback=initMap&libraries=&v=weekly"
@@ -28,7 +39,6 @@
 
   </head>
   <body>
-    <h3>WaterWells</h3>
     <div id="map"></div>
 
     <script>

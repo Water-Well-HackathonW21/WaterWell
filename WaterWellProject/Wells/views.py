@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Well
 import json
 from django.core import serializers
-from .forms import WellMarker
+#from .forms import WellMarker #temp fix
 
 # Create your views here.
 
