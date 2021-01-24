@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -80,16 +81,48 @@
       });
 
       function placeMarker() {
-        var marker = new google.maps.Marker({
-          position: position,
-          map: map
-        });  
+        // https://stackoverflow.com/questions/15096461/resize-google-maps-marker-icon-image
+        var active = {
+            url: "{% static 'Wells/images/icon_active.png' %}", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
+
+        var dry = {
+            url: "{% static 'Wells/images/icon_dry.png' %}", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
+
+        var polluted = {
+            url: "{% static 'Wells/images/icon_polluted.png' %}", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
+
         var attributeArray = [document.getElementById("nameInput").value,
                               document.getElementById("statusInput").value, 
                               document.getElementById("descriptionInput").value,
                               position]
+
+        var marker = new google.maps.Marker({
+          position: position,
+          map: map
+        });  
+        
         marker.htmlContent = attributeArray;
         infoWindow.close();
+
+        if (attributeArray[1].toLowerCase() == "active") {
+          marker.setIcon(active);
+        } else if (attributeArray[1].toLowerCase() == "dry") {
+          marker.setIcon(dry);
+        } else if (attributeArray[1].toLowerCase() == "polluted") {
+          marker.setIcon(polluted);
+        }
 
         // https://stackoverflow.com/questions/30905390/creating-a-text-input-field-precisely-where-a-user-clicks-on-a-google-map
         google.maps.event.addListener(marker, 'click', function() {
