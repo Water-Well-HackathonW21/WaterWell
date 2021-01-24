@@ -106,12 +106,9 @@
                         temp = temp.toLowerCase();
                         if ((temp == "active") || (temp == "dry") || (temp == "polluted") ){
                             console.log(temp);
-                            // var marker = new google.maps.Marker({
-                            //     position: event.latlng,
-                            //     map: map,
-                            // });
-                            templat = 53.5;
-                            templon = -113.8;
+                            var templatlon = event.latLng.toJSON();
+                            templat = templatlon["lat"];
+                            templon = templatlon["lng"];
                             addMarker({coords:event.latLng, content:description, iconImage: value.toLowerCase()});
                             var xhttp = new XMLHttpRequest();
                             var data = {status: temp, lat: templat, lon:templon, description: tempdescription}
