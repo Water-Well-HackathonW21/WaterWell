@@ -60,23 +60,16 @@
         // part of https://developers.google.com/maps/documentation/javascript/events#EventArguments
         map.addListener("click", (e) => {
           // https://stackoverflow.com/questions/24478348/text-input-to-a-global-infowindow
+          if (infoWindow != null) {
+            infoWindow.close();
+          }
           infoWindow = new google.maps.InfoWindow();
           position = e.latLng;
           infoWindow.setPosition(position);
           infoWindow.setContent(inputContent);
           infoWindow.open(map);
-          //placeMarkerAndPanTo(e.latLng, map);
         });
 
-      }
-
-      // https://developers.google.com/maps/documentation/javascript/events#EventArguments
-      function placeMarkerAndPanTo() {
-        new google.maps.Marker({
-          position: position,
-          map: map,
-        });
-        map.panTo(latLng);
       }
 
 
@@ -87,7 +80,6 @@
       });
 
       function placeMarker() {
-        
         var marker = new google.maps.Marker({
           position: position,
           map: map
