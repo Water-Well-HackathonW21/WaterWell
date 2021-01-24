@@ -1,8 +1,8 @@
-
+{% load static %}
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Add Map</title>
+    <title>Wells Map</title>
     <style>
         #map {
             height: 600px;
@@ -19,10 +19,8 @@
     <h3>WaterWells</h3>
     <div id="map"></div>
 
-
-
-
     <script>
+        
         function initMap() {
             const location = { lat: 53.5461, lng: -113.4938 };
 
@@ -36,17 +34,47 @@
             google.maps.event.addListener(map, 'click', 
                 function(event){
                     //addMarker({coords:event.latLng});
-                    var description = prompt("Please enter some description");
 
-                    if (description!=null){
-                        addMarker({coords:event.latLng, content:description});
-                    }
-                    else{
-                        addMarker({coords:event.latLng});
-                    }
+                    Swal.mixin({
+                        input: 'text',
+                        confirmButtonText: 'Next &rarr;',
+                        showCancelButton: true,
+                        progressSteps: ['1', '2']
+                        }).queue([
+                        {
+                            title: 'Status of the Well',
+                            text: 'Active, Dry, or Polluted'
+                        },
+                        'Enter Description',
+                        ]).then((result) => {
+                        if (result.value) {
+                            const answers = JSON.stringify(result.value)
+                            // Swal.fire({
+                            // confirmButtonText: 'Add!'
+                            // })
+                            var value = result.value[0];
+                            var description = result.value[1];                            
+                        }
+                        
+                        // if (description!=null){
+                        addMarker({coords:event.latLng, content:description, iconImage: value});
+                        //  }
+                        // else{
+                        // addMarker({coords:event.latLng});
+                        // }
+
+                        })
+                    
+                    //var description = prompt("Please enter some description");
+
                 });
         }
         function addMarker(props){
+            
+            var active = "{% static 'Wells/images/icon_active.png' %}"
+            var dry = "{% static 'Wells/images/icon_dry.png' %}"
+            var polluted = "{% static 'Wells/images/icon_polluted.png' %}"
+
             var marker = new google.maps.Marker({
                 position: props.coords,
                 map: map,
@@ -62,16 +90,29 @@
                 
             }
 
+            if (props.iconImage){
+                if (props.iconImage == "Active"){
+                    marker.setIcon(active);
+                }
+                else if (props.iconImage == "Dry"){
+                    marker.setIcon(dry);
+                }
+                else if (props.iconImage == "Polluted"){
+                    marker.setIcon(polluted);
+                }  
+            }
+
         }
     </script>
   </body>
-
 
     <!-- Including  jQuery Dialog UI Here-->
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/dialog.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
 
 
 
