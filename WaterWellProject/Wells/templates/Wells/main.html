@@ -66,6 +66,9 @@
                 function(event){
                     //addMarker({coords:event.latLng});
                     var temp;
+                    var templat;
+                    var templon;
+                    var tempdescription;
                     Swal.mixin({
                         input: 'text',
                         confirmButtonText: 'Next &rarr;',
@@ -94,15 +97,32 @@
                             var value = result.value[0];
                             
                             var description = result.value[1];
-                            description = description + "\n" + today + "\n";      
-                            temp = value;                      
+                            description = description + " " + today;      
+                            temp = value;
+                            tempdescription = description                      
                         }
                         
                         // if (description!=null){
                         temp = temp.toLowerCase();
                         if ((temp == "active") || (temp == "dry") || (temp == "polluted") ){
                             console.log(temp);
+                            // var marker = new google.maps.Marker({
+                            //     position: event.latlng,
+                            //     map: map,
+                            // });
+                            templat = 53.5;
+                            templon = -113.8;
                             addMarker({coords:event.latLng, content:description, iconImage: value.toLowerCase()});
+                            var xhttp = new XMLHttpRequest();
+                            var data = {status: temp, lat: templat, lon:templon, description: tempdescription}
+
+                            xhttp.open("POST", "add/", true);
+                            xhttp.setRequestHeader('Content-Type', 'application/json');
+                            xhttp.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+                            var body = JSON.stringify(data);
+                            xhttp.send(body);
+
+
                         }
                         
                         //  }
@@ -118,7 +138,7 @@
             var obj = '{{ all_items|safe }}';
             obj = JSON.parse(obj);
             for (i = 0; i < obj.length; i++){
-                console.log(obj[i]["fields"]["status"])
+                console.log(obj[i])
                 var point = new google.maps.LatLng(obj[i]["fields"]["lat"], obj[i]["fields"]["lon"]);
                 addMarker({coords: point, content: obj[i]["fields"]["description"], iconImage: obj[i]["fields"]["status"]});
             }
